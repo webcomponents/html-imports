@@ -30,14 +30,7 @@
         window.importError = importError;
       })();
     </script>
-    <script src="../../src/html-imports.js"></script>
-    <script>
-      WCT = {
-        waitFor: function(callback) {
-          HTMLImports.whenReady(callback);
-        }
-      };
-    </script>
+    <script src="../../src/HTMLImports.js"></script>
     <script src="../../../web-component-tester/browser.js"></script>
     <link rel="import" href="imports/load-1.html" onload="importLoaded(event)">
     <link rel="import" href="imports/load-2.html" onload="importLoaded(event)">

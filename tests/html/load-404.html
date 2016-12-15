@@ -11,14 +11,10 @@
 <html>
   <head>
     <title>load ready 404 test</title>
-    <script src="../../src/html-imports.js"></script>
     <script>
-      WCT = {
-        waitFor: function(callback) {
-          HTMLImports.whenReady(callback);
-        }
-      };
+      WCT = {waitFor: function(cb){cb()}};
     </script>
+    <script src="../../src/HTMLImports.js"></script>
     <script src="../../../web-component-tester/browser.js"></script>
     <script>
       var errors = 0;
@@ -44,7 +40,7 @@
 
         function check() {
           clearTimeout(timeout);
-          chai.assert.equal(document.querySelector('link[href="imports/404-1.html"]').import, null, '404\'d link.import is null');
+          chai.assert.equal(document.querySelector('link').import, null, '404\'d link.import is null');
           chai.assert.equal(errors, 2, '404\'d generate error event');
           done();
         }

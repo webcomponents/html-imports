@@ -11,34 +11,34 @@
 <html>
   <head>
     <title>HTML Imports Dynamic</title>
-    <script src="../../src/html-imports.js"></script>
-    <script>
-      WCT = {
-        waitFor: function(callback) {
-          HTMLImports.whenReady(callback);
-        }
-      };
-    </script>
+    <script src="../../src/HTMLImports.js"></script>
     <script src="../../../web-component-tester/browser.js"></script>
   </head>
   <body>
 
   <script>
-    test('dynamic imports', function(done) {
-      var loads = 0;
-      var div = document.createElement('div');
-      div.innerHTML = '<link rel="import" href="imports/load-1.html">' +
-        '<link rel="import" href="imports/load-2.html">';
-      document.body.appendChild(div);
-      var ports = document.querySelectorAll('link[rel=import]');
-      for (var i=0, l=ports.length, n; (i<l) && (n=ports[i]); i++) {
-        n.addEventListener('load', function(e) {
-          loads++;
-          if (loads == 2) {
-            done();
+    var loads = 0;
+    document.addEventListener('DOMContentLoaded', function() {
+      // some time later
+      setTimeout(function() {
+        var div = document.createElement('div');
+        div.innerHTML = '<link rel="import" href="imports/load-1.html">' +
+          '<link rel="import" href="imports/load-2.html">';
+          document.body.appendChild(div);
+          var ports = document.querySelectorAll('link[rel=import]');
+          for (var i=0, l=ports.length, n; (i<l) && (n=ports[i]); i++) {
+            n.addEventListener('load', function(e) {
+              loads++;
+            });
           }
-        });
-      }
+      });
+    });
+    test('dynamic imports', function(done) {
+      // wait a bit for the imports to load, or not
+      setTimeout(function() {
+        chai.assert.equal(loads, 2);
+        done();
+      }, 1000);
     });
   </script>
   </body>
