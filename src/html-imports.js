@@ -26,7 +26,7 @@ if (!flags.noOpts) {
 }
 
 // Load.
-var file = 'HTMLImports.js';
+var file = 'html-imports.js';
 
 var modules = [
   'base.js',
