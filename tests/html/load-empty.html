@@ -22,15 +22,15 @@
     <script src="../../../web-component-tester/browser.js"></script>
     <script>
       window.loadEvents = 0;
-      (function() {
-        function importLoaded(event) {
+      function importLoadedWithCallback(done){
+        return function(event){
           window.loadEvents++;
           chai.assert.equal(event.type, 'load', 'event type should be `load`');
           chai.assert.ok(event.target.import, 'link should have `import` defined');
+          done && done();
         }
-
-        window.importLoaded = importLoaded;
-      })();
+      }
+      window.importLoaded = importLoadedWithCallback();
     </script>
     <link rel="import" href="imports/load-empty.html" onload="importLoaded(event)">
 
@@ -46,13 +46,8 @@
           var anotherHTMLImport = document.createElement('link');
           anotherHTMLImport.rel = 'import';
           anotherHTMLImport.href = 'imports/load-empty-async.html';
-          anotherHTMLImport.onload = importLoaded;
+          anotherHTMLImport.onload = importLoadedWithCallback(done);
           document.head.appendChild(anotherHTMLImport);
-
-          setTimeout(function(){
-            chai.assert.equal(loadEvents, 1, 'expected # of load events');
-            done();
-          }, 100);
         });
       });
       test('load empty resource second time', function(done) {
@@ -61,13 +56,8 @@
           var anotherHTMLImport = document.createElement('link');
           anotherHTMLImport.rel = 'import';
           anotherHTMLImport.href = 'imports/load-empty.html';
-          anotherHTMLImport.onload = importLoaded;
+          anotherHTMLImport.onload = importLoadedWithCallback(done);
           document.head.appendChild(anotherHTMLImport);
-
-          setTimeout(function(){
-            chai.assert.equal(loadEvents, 1, 'expected # of load events');
-            done();
-          }, 100);
         });
       });
     </script>
