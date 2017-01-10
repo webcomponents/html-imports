@@ -12,7 +12,6 @@ addons:
 before_script:
 - npm install -g bower
 - bower install
-- gulp test-modules
 script:
 - xvfb-run wct
 - if [ "${TRAVIS_PULL_REQUEST}" = "false" ]; then wct -s 'windows 10/microsoftedge@14'
