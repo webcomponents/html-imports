@@ -227,10 +227,11 @@
 
   const disabledLinkSelector = `link[rel=stylesheet][href][type=${importDisableType}]`;
 
-  const importDependenciesSelector = `${importSelector}, ${disabledLinkSelector},
-    style:not([type]), link[rel=stylesheet][href]:not([type]),
-    script:not([type]), script[type="application/javascript"],
-    script[type="text/javascript"]`;
+  const importDependenciesSelector = `${importSelector},
+style:not([type]), style[type="text/css"], ${disabledLinkSelector},
+link[rel=stylesheet][href]:not([type]), link[rel=stylesheet][href][type="text/css"],
+script:not([type]), script[type="application/javascript"],
+script[type="text/javascript"]`;
 
   const importDependencyAttr = 'import-dependency';
 
@@ -239,17 +240,7 @@
   const pendingScriptsSelector = `script[${importDependencyAttr}]`;
 
   const pendingStylesSelector = `style[${importDependencyAttr}],
-    link[rel=stylesheet][${importDependencyAttr}]`;
-
-  /**
-   * @type {Function}
-   */
-  const MATCHES = Element.prototype.matches ||
-    Element.prototype.matchesSelector ||
-    Element.prototype.mozMatchesSelector ||
-    Element.prototype.msMatchesSelector ||
-    Element.prototype.oMatchesSelector ||
-    Element.prototype.webkitMatchesSelector;
+link[rel=stylesheet][${importDependencyAttr}]`;
 
   /**
    * Importer will:
@@ -608,7 +599,8 @@
    * @return {boolean}
    */
   const isImportLink = node => {
-    return node.nodeType === Node.ELEMENT_NODE && MATCHES.call(node, importSelector);
+    return node.nodeType === Node.ELEMENT_NODE && node.localName === 'link' &&
+      ( /** @type {!HTMLLinkElement} */ (node).rel === 'import');
   };
 
   /**
