@@ -405,11 +405,10 @@
         // Generate source map hints for inline scripts.
         if (n.localName === 'script' && !n.src && n.textContent) {
           const num = inlineScriptIndex ? `-${inlineScriptIndex}` : '';
-          const content = n.textContent + `\n//# sourceURL=${url}${num}.js\n`;
-          // We use the src attribute so it triggers load/error events, and it's
-          // easier to capture errors (e.g. parsing) like this.
-          n.setAttribute('src', 'data:text/javascript;charset=utf-8,' + encodeURIComponent(content));
-          n.textContent = '';
+          // Use textContent for easier debuggability.
+          // NOTE: Firefox has issues in respecting sourceURL when script
+          // throws or logs errors https://bugzilla.mozilla.org/show_bug.cgi?id=1192882
+          n.textContent += `\n//# sourceURL=${url}${num}.js\n`;
           inlineScriptIndex++;
         }
       }
@@ -473,6 +472,7 @@
           for (let j = 0, ll = s.attributes.length; j < ll; j++) {
             clone.setAttribute(s.attributes[j].name, s.attributes[j].value);
           }
+          clone.textContent = s.textContent;
 
           // Update currentScript and replace original with clone script.
           currentScript = clone;
