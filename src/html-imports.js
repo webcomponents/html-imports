@@ -9,6 +9,8 @@
  */
 (scope => {
 
+  'use strict';
+
   /********************* base setup *********************/
   const useNative = Boolean('import' in document.createElement('link'));
 
