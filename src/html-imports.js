@@ -238,19 +238,18 @@
       // Used to keep track of pending loads, so that flattening and firing of
       // events can be done when all resources are ready.
       this.inflight = 0;
+      // Used to observe changes on <head>, keep track so we can stop observer
+      // while flattening.
       this.dynamicImportsMO = new MutationObserver(m => this.handleMutations(m));
+      this.dynamicImportsMO.observe(document.head, {
+        childList: true,
+        subtree: true
+      });
       // 1. Load imports contents
       // 2. Assign them to first import links on the document
       // 3. Wait for import styles & scripts to be done loading/running
       // 4. Fire load/error events
-      whenDocumentReady(() => {
-        // Observe changes on <head>.
-        this.dynamicImportsMO.observe(document.head, {
-          childList: true,
-          subtree: true
-        });
-        this.loadImports(document);
-      });
+      this.loadImports(document);
     }
 
     /**
@@ -701,7 +700,8 @@
     return event;
   };
 
-  new Importer();
+  // Initialize Importer only after document is ready.
+  whenDocumentReady(() => new Importer());
 
   /**
     Add support for the `HTMLImportsLoaded` event and the `HTMLImports.whenReady`
