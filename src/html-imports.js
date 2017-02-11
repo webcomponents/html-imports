@@ -626,12 +626,12 @@
    * Calls the callback when all imports in the document at call time
    * (or at least document ready) have loaded. Callback is called synchronously
    * if imports are already done loading.
-   * @param {function()=} callback
+   * @param {!function()} callback
    */
   const whenReady = callback => {
     // 1. ensure the document is in a ready state (has dom), then
     // 2. watch for loading of imports and call callback when done
-    whenDocumentReady(() => whenImportsReady(() => callback && callback()));
+    whenDocumentReady(() => whenImportsReady(callback));
   }
 
   /**

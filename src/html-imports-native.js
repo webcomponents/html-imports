@@ -63,10 +63,9 @@
    * Calls the callback when all imports in the document at call time
    * (or at least document ready) have loaded. Callback is called synchronously
    * if imports are already done loading.
-   * @param {function()=} callback
+   * @param {!function()} callback
    */
   const whenReady = callback => {
-    if (!callback) return;
     if (document.readyState !== 'loading') {
       whenImportsReady(callback);
     } else {
