@@ -12,8 +12,18 @@
   'use strict';
 
   const importSelector = 'link[rel=import]';
+
+  /**
+   * Used to mark loaded imports.
+   * @type {!Symbol}
+   */
   const loaded = Symbol('loaded');
 
+  /**
+   * Invokes the callback after all imports are loaded. Callback is called
+   * synchronously if imports are already done loading.
+   * @param {!function()} callback
+   */
   const whenImportsReady = callback => {
     let imports = document.querySelectorAll(importSelector);
     let pending = imports.length;
@@ -28,6 +38,12 @@
     }
   };
 
+  /**
+   * Waits for an import to finish loading. If already done loading, it will
+   * mark the element accordingly.
+   * @param {!HTMLLinkElement} imp
+   * @param {!function()} callback
+   */
   const whenImportReady = (imp, callback) => {
     if (imp[loaded]) {
       callback();
@@ -43,7 +59,14 @@
     }
   };
 
+  /**
+   * Calls the callback when all imports in the document at call time
+   * (or at least document ready) have loaded. Callback is called synchronously
+   * if imports are already done loading.
+   * @param {function()=} callback
+   */
   const whenReady = callback => {
+    if (!callback) return;
     if (document.readyState !== 'loading') {
       whenImportsReady(callback);
     } else {
@@ -57,6 +80,11 @@
     }
   };
 
+  /**
+   * Returns the link document that imported the element.
+   * @param {!Node} el
+   * @return {Document|null}
+   */
   const importForElement = el => {
     return el.ownerDocument === document ? null : el.ownerDocument;
   };
