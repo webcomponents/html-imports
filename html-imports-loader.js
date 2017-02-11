@@ -9,9 +9,7 @@
  */
 var script = document.querySelector('script[src*="html-imports-loader.js"]');
 var newScript = document.createElement('script');
-var forcePolyfill = location.search.indexOf('force=true') !== -1;
-var useNative = 'import' in document.createElement('link');
-if (useNative && !forcePolyfill) {
+if ('import' in document.createElement('link')) {
   newScript.src = script.src.replace('html-imports-loader.js', 'src/html-imports-native.js');
 } else {
   newScript.src = script.src.replace('html-imports-loader.js', 'html-imports.min.js');

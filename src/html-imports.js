@@ -11,7 +11,6 @@
   'use strict';
 
   /********************* base setup *********************/
-  const useNative = Boolean('import' in document.createElement('link'));
 
   // Polyfill `currentScript` for browsers without it.
   let currentScript = null;
@@ -683,9 +682,6 @@
    * @return {HTMLLinkElement|Document|undefined}
    */
   const importForElement = element => {
-    if (useNative) {
-      return element.ownerDocument;
-    }
     let owner = element['__ownerImport'];
     if (!owner) {
       owner = element;
@@ -705,33 +701,7 @@
     return event;
   };
 
-  if (useNative) {
-    // Check for imports that might already be done loading by the time this
-    // script is actually executed. Native imports are blocking, so the ones
-    // available in the document by this time should already have failed
-    // or have .import defined.
-    const imps = /** @type {!NodeList<!HTMLLinkElement>} */
-      (document.querySelectorAll(importSelector));
-    for (let i = 0, l = imps.length, imp; i < l && (imp = imps[i]); i++) {
-      if (!imp.import || imp.import.readyState !== 'loading') {
-        imp['__loaded'] = true;
-      }
-    }
-    // Listen for load/error events to capture dynamically added scripts.
-    /**
-     * @type {!function(!Event)}
-     */
-    const onLoadingDone = event => {
-      const elem = /** @type {!Element} */ (event.target);
-      if (isImportLink(elem)) {
-        elem['__loaded'] = true;
-      }
-    };
-    document.addEventListener('load', onLoadingDone, true /* useCapture */ );
-    document.addEventListener('error', onLoadingDone, true /* useCapture */ );
-  } else {
-    new Importer();
-  }
+  new Importer();
 
   /**
     Add support for the `HTMLImportsLoaded` event and the `HTMLImports.whenReady`
@@ -739,10 +709,6 @@
     script elements do not force imports to resolve. Instead, users should wrap
     code in either an `HTMLImportsLoaded` handler or after load time in an
     `HTMLImports.whenReady(callback)` call.
-
-    NOTE: This module also supports these apis under the native implementation.
-    Therefore, if this file is loaded, the same code can be used under both
-    the polyfill and native implementation.
    */
   whenReady(() => document.dispatchEvent(newCustomEvent('HTMLImportsLoaded', {
     cancelable: true,
@@ -751,7 +717,7 @@
   })));
 
   // exports
-  scope.useNative = useNative;
+  scope.useNative = false;
   scope.whenReady = whenReady;
   scope.importForElement = importForElement;
 

@@ -14,7 +14,7 @@
 <script>WCT = {waitFor: function(cb){cb()}};</script>
 <script src="../../web-component-tester/browser.js"></script>
 <script>
-  var suites = [
+  WCT.loadSuites([
     'html/HTMLImportsLoaded-native.html',
     'html/HTMLImports-lazy.html',
     'html/parser.html',
@@ -37,13 +37,5 @@
     'html/lazy-import.html',
     'html/unclosed.html',
     'html/ready-state.html'
-  ];
-  // Force html-imports-loader to load the polyfill also in browsers that support
-  // native HTMLImports (chrome) in order to test implementation parity.
-  if ('import' in document.createElement('link')) {
-    suites.forEach(function(suite) {
-      suites.push(suite + '?force=true');
-    });
-  }
-  WCT.loadSuites(suites);
+  ]);
 </script>

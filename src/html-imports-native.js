@@ -26,7 +26,7 @@
         }
       }));
     }
-  }
+  };
 
   const whenImportReady = (imp, callback) => {
     if (imp[loaded]) {
@@ -41,7 +41,7 @@
       imp.addEventListener('load', onLoadingDone);
       imp.addEventListener('error', onLoadingDone);
     }
-  }
+  };
 
   const whenReady = callback => {
     if (document.readyState !== 'loading') {
@@ -78,7 +78,8 @@
   document.addEventListener('load', onLoadingDone, true);
   document.addEventListener('error', onLoadingDone, true);
 
-  // Fire 'HTMLImportsLoaded' to keep implementation parity.
+  // Support 'HTMLImportsLoaded' firing when all imports are ready, so that the
+  // same code can be used under both the polyfill and native implementation.
   whenReady(() => document.dispatchEvent(new CustomEvent('HTMLImportsLoaded', {
     cancelable: true,
     bubbles: true
