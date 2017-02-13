@@ -20,17 +20,15 @@
   <body>
     <script>
       test('HTMLImports lazily loaded', function(done) {
-        // Lazily loaded HTMLImports
-        var s = document.createElement('script');
-        // Wait for script to load and imports to finish.
-        s.addEventListener('load', function() {
-          HTMLImports.whenReady(function() {
-            assert.isOk(imp.import, 'imported');
-            assert.isNotOk(err.import, 'errored');
-            done();
-          });
+        assert.isNotOk(window.HTMLImports, 'not loaded yet');
+        // Wait imports to finish.
+        document.addEventListener('HTMLImportsLoaded', function() {
+          assert.isOk(imp.import, 'imported');
+          assert.isNotOk(err.import, 'errored');
+          done();
         });
-        s.src = '../../html-imports.min.js';
+        var s = document.createElement('script');
+        s.src = '../../html-imports-loader.js';
         document.head.appendChild(s);
       });
     </script>

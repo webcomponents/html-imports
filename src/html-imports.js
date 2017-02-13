@@ -8,9 +8,9 @@
  * subject to an additional IP rights grant found at http://polymer.github.io/PATENTS.txt
  */
 (scope => {
+  'use strict';
 
   /********************* base setup *********************/
-  const useNative = Boolean('import' in document.createElement('link'));
 
   // Polyfill `currentScript` for browsers without it.
   let currentScript = null;
@@ -238,19 +238,18 @@
       // Used to keep track of pending loads, so that flattening and firing of
       // events can be done when all resources are ready.
       this.inflight = 0;
+      // Used to observe changes on <head>, keep track so we can stop observer
+      // while flattening.
       this.dynamicImportsMO = new MutationObserver(m => this.handleMutations(m));
+      this.dynamicImportsMO.observe(document.head, {
+        childList: true,
+        subtree: true
+      });
       // 1. Load imports contents
       // 2. Assign them to first import links on the document
       // 3. Wait for import styles & scripts to be done loading/running
       // 4. Fire load/error events
-      whenDocumentReady(() => {
-        // Observe changes on <head>.
-        this.dynamicImportsMO.observe(document.head, {
-          childList: true,
-          subtree: true
-        });
-        this.loadImports(document);
-      });
+      this.loadImports(document);
     }
 
     /**
@@ -607,8 +606,9 @@
       element['__loaded'] = true;
       callback && callback();
     } else {
-      const onLoadingDone = event => {
-        element.removeEventListener(event.type, onLoadingDone);
+      const onLoadingDone = () => {
+        element.addEventListener('load', onLoadingDone);
+        element.removeEventListener('error', onLoadingDone);
         element['__loaded'] = true;
         callback && callback();
       };
@@ -627,12 +627,12 @@
    * Calls the callback when all imports in the document at call time
    * (or at least document ready) have loaded. Callback is called synchronously
    * if imports are already done loading.
-   * @param {function()=} callback
+   * @param {!function()} callback
    */
   const whenReady = callback => {
     // 1. ensure the document is in a ready state (has dom), then
     // 2. watch for loading of imports and call callback when done
-    whenDocumentReady(() => whenImportsReady(() => callback && callback()));
+    whenDocumentReady(() => whenImportsReady(callback));
   }
 
   /**
@@ -682,9 +682,6 @@
    * @return {HTMLLinkElement|Document|undefined}
    */
   const importForElement = element => {
-    if (useNative) {
-      return element.ownerDocument;
-    }
     let owner = element['__ownerImport'];
     if (!owner) {
       owner = element;
@@ -704,33 +701,8 @@
     return event;
   };
 
-  if (useNative) {
-    // Check for imports that might already be done loading by the time this
-    // script is actually executed. Native imports are blocking, so the ones
-    // available in the document by this time should already have failed
-    // or have .import defined.
-    const imps = /** @type {!NodeList<!HTMLLinkElement>} */
-      (document.querySelectorAll(importSelector));
-    for (let i = 0, l = imps.length, imp; i < l && (imp = imps[i]); i++) {
-      if (!imp.import || imp.import.readyState !== 'loading') {
-        imp['__loaded'] = true;
-      }
-    }
-    // Listen for load/error events to capture dynamically added scripts.
-    /**
-     * @type {!function(!Event)}
-     */
-    const onLoadingDone = event => {
-      const elem = /** @type {!Element} */ (event.target);
-      if (isImportLink(elem)) {
-        elem['__loaded'] = true;
-      }
-    };
-    document.addEventListener('load', onLoadingDone, true /* useCapture */ );
-    document.addEventListener('error', onLoadingDone, true /* useCapture */ );
-  } else {
-    new Importer();
-  }
+  // Initialize Importer only after document is ready.
+  whenDocumentReady(() => new Importer());
 
   /**
     Add support for the `HTMLImportsLoaded` event and the `HTMLImports.whenReady`
@@ -738,10 +710,6 @@
     script elements do not force imports to resolve. Instead, users should wrap
     code in either an `HTMLImportsLoaded` handler or after load time in an
     `HTMLImports.whenReady(callback)` call.
-
-    NOTE: This module also supports these apis under the native implementation.
-    Therefore, if this file is loaded, the same code can be used under both
-    the polyfill and native implementation.
    */
   whenReady(() => document.dispatchEvent(newCustomEvent('HTMLImportsLoaded', {
     cancelable: true,
@@ -750,7 +718,7 @@
   })));
 
   // exports
-  scope.useNative = useNative;
+  scope.useNative = false;
   scope.whenReady = whenReady;
   scope.importForElement = importForElement;
 

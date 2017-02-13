@@ -2,7 +2,7 @@ var HTMLImports = {};
 
 HTMLImports.useNative = false;
 /**
- * @param {function()=} callback
+ * @param {!function()} callback
  */
 HTMLImports.whenReady = function(callback) {};
 /**
