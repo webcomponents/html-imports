@@ -606,8 +606,9 @@
       element['__loaded'] = true;
       callback && callback();
     } else {
-      const onLoadingDone = event => {
-        element.removeEventListener(event.type, onLoadingDone);
+      const onLoadingDone = () => {
+        element.addEventListener('load', onLoadingDone);
+        element.removeEventListener('error', onLoadingDone);
         element['__loaded'] = true;
         callback && callback();
       };
