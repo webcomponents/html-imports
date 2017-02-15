@@ -20,9 +20,10 @@
     </script>
     <script src="../../html-imports.min.js"></script>
     <script src="../../../web-component-tester/browser.js"></script>
+
+    <link rel="import" href="imports/import-1.html">    
   </head>
   <body>
-    <link rel="import" href="imports/import-1.html">
     <script>
       test('HTMLImportsLoaded fires with native imports', function(done) {
         if (HTMLImports.useNative) {

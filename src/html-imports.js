@@ -244,27 +244,25 @@
       // Used to keep track of pending loads, so that flattening and firing of
       // events can be done when all resources are ready.
       this.inflight = 0;
+      // Observe changes on <head>.
       this.dynamicImportsMO = new MutationObserver(m => this.handleMutations(m));
+      this.dynamicImportsMO.observe(document.head, {
+        childList: true,
+        subtree: true
+      });
       // 1. Load imports contents
       // 2. Assign them to first import links on the document
       // 3. Wait for import styles & scripts to be done loading/running
       // 4. Fire load/error events
-      whenDocumentReady(() => {
-        // Observe changes on <head>.
-        this.dynamicImportsMO.observe(document.head, {
-          childList: true,
-          subtree: true
-        });
-        this.loadImports(document);
-      });
+      this.loadImports();
     }
 
     /**
-     * @param {!(HTMLDocument|DocumentFragment|Element)} doc
+     * @param {(DocumentFragment|Element)=} doc
      */
     loadImports(doc) {
       const links = /** @type {!NodeList<!HTMLLinkElement>} */
-        (doc.querySelectorAll(importSelector));
+        ((doc || document.head).querySelectorAll(importSelector));
       for (let i = 0, l = links.length; i < l; i++) {
         this.loadImport(links[i]);
       }
@@ -387,7 +385,7 @@
 
       // Stop observing, flatten & load resource, then restart observing <head>.
       this.dynamicImportsMO.disconnect();
-      this.flatten(document);
+      this.flatten();
       // We wait for styles to load, and at the same time we execute the scripts,
       // then fire the load/error events for imports to have faster whenReady
       // callback execution.
@@ -418,11 +416,11 @@
     }
 
     /**
-     * @param {!HTMLDocument} doc
+     * @param {DocumentFragment=} doc
      */
     flatten(doc) {
       const n$ = /** @type {!NodeList<!HTMLLinkElement>} */
-        (doc.querySelectorAll(importSelector));
+        ((doc || document.head).querySelectorAll(importSelector));
       for (let i = 0, l = n$.length, n; i < l && (n = n$[i]); i++) {
         const imp = this.documents[n.href];
         n.import = /** @type {!Document} */ (imp);
@@ -452,7 +450,7 @@
      * @param {!function()} callback
      */
     runScripts(callback) {
-      const s$ = document.querySelectorAll(pendingScriptsSelector);
+      const s$ = document.head.querySelectorAll(pendingScriptsSelector);
       const l = s$.length;
       const cloneScript = i => {
         if (i < l) {
@@ -488,7 +486,7 @@
      */
     waitForStyles(callback) {
       const s$ = /** @type {!NodeList<!(HTMLLinkElement|HTMLStyleElement)>} */
-        (document.querySelectorAll(pendingStylesSelector));
+        (document.head.querySelectorAll(pendingStylesSelector));
       let pending = s$.length;
       if (!pending) {
         callback();
@@ -499,7 +497,7 @@
       // https://developer.microsoft.com/en-us/microsoft-edge/platform/issues/10472273/
       // If there is one <link rel=stylesheet> imported, we must move all imported
       // links and styles to <head>.
-      const needsMove = isIE && !!document.querySelector(disabledLinkSelector);
+      const needsMove = isIE && !!document.head.querySelector(disabledLinkSelector);
       for (let i = 0, l = s$.length, s; i < l && (s = s$[i]); i++) {
         // Listen for load/error events, remove selector once is done loading.
         whenElementLoaded(s, () => {
@@ -538,7 +536,7 @@
      */
     fireEvents() {
       const n$ = /** @type {!NodeList<!HTMLLinkElement>} */
-        (document.querySelectorAll(importSelector));
+        (document.head.querySelectorAll(importSelector));
       // Inverse order to have events firing bottom-up.
       for (let i = n$.length - 1, n; i >= 0 && (n = n$[i]); i--) {
         this.fireEventIfNeeded(n);
@@ -667,7 +665,7 @@
    */
   const whenImportsReady = callback => {
     let imports = /** @type {!NodeList<!HTMLLinkElement>} */
-      (document.querySelectorAll(rootImportSelector));
+      (document.head.querySelectorAll(rootImportSelector));
     let pending = imports.length;
     if (!pending) {
       callback();
@@ -723,7 +721,7 @@
     // available in the document by this time should already have failed
     // or have .import defined.
     const imps = /** @type {!NodeList<!HTMLLinkElement>} */
-      (document.querySelectorAll(importSelector));
+      (document.head.querySelectorAll(importSelector));
     for (let i = 0, l = imps.length, imp; i < l && (imp = imps[i]); i++) {
       if (!imp.import || imp.import.readyState !== 'loading') {
         imp[loaded] = true;
@@ -739,10 +737,10 @@
         elem[loaded] = true;
       }
     };
-    document.addEventListener('load', onLoadingDone, true /* useCapture */ );
-    document.addEventListener('error', onLoadingDone, true /* useCapture */ );
+    document.head.addEventListener('load', onLoadingDone, true /* useCapture */ );
+    document.head.addEventListener('error', onLoadingDone, true /* useCapture */ );
   } else {
-    new Importer();
+    whenDocumentReady(() => new Importer());
   }
 
   /**
