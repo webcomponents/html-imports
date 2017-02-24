@@ -212,9 +212,9 @@
   const disabledLinkSelector = `link[rel=stylesheet][href][type=${importDisableType}]`;
 
   const importDependenciesSelector = `${importSelector}, ${disabledLinkSelector},
-    style:not([type]), link[rel=stylesheet][href]:not([type]),
-    script:not([type]), script[type="application/javascript"],
-    script[type="text/javascript"]`;
+style:not([type]), link[rel=stylesheet][href]:not([type]),
+script:not([type]), script[type="application/javascript"],
+script[type="text/javascript"]`;
 
   const importDependencyAttr = 'import-dependency';
 
@@ -223,7 +223,7 @@
   const pendingScriptsSelector = `script[${importDependencyAttr}]`;
 
   const pendingStylesSelector = `style[${importDependencyAttr}],
-    link[rel=stylesheet][${importDependencyAttr}]`;
+link[rel=stylesheet][${importDependencyAttr}]`;
 
   /**
    * Importer will:
@@ -239,18 +239,16 @@
       // events can be done when all resources are ready.
       this.inflight = 0;
       this.dynamicImportsMO = new MutationObserver(m => this.handleMutations(m));
+      // Observe changes on <head>.
+      this.dynamicImportsMO.observe(document.head, {
+        childList: true,
+        subtree: true
+      });
       // 1. Load imports contents
       // 2. Assign them to first import links on the document
       // 3. Wait for import styles & scripts to be done loading/running
       // 4. Fire load/error events
-      whenDocumentReady(() => {
-        // Observe changes on <head>.
-        this.dynamicImportsMO.observe(document.head, {
-          childList: true,
-          subtree: true
-        });
-        this.loadImports(document);
-      });
+      this.loadImports(document);
     }
 
     /**
@@ -269,33 +267,36 @@
      */
     loadImport(link) {
       const url = link.href;
-      // This resource is already being handled by another import.
-      if (this.documents[url] !== undefined) {
-        // If import is already loaded, we can safely associate it to the link
-        // and fire the load/error event.
-        const imp = this.documents[url];
-        if (imp && imp['__loaded']) {
-          link.import = imp;
+      const imp = this.documents[url];
+      // First link that loads this resource.
+      if (imp === undefined) {
+        this.inflight++;
+        // Mark it as pending to notify others this url is being loaded.
+        this.documents[url] = 'pending';
+        Xhr.load(url, (resource, redirectedUrl) => {
+          const doc = this.makeDocument(resource, redirectedUrl || url);
+          this.documents[url] = doc;
+          this.inflight--;
+          // Load subtree.
+          this.loadImports(doc);
+          this.processImportsIfLoadingDone();
+        }, () => {
+          // If load fails, handle error.
+          this.documents[url] = null;
+          this.inflight--;
+          this.processImportsIfLoadingDone();
+        });
+      } else if (!this.inflight) {
+        // We're already in the process phase or later, we can assign
+        // the import and fire the load/error event.
+        link.import = imp;
+        if (imp) {
+          whenElementLoaded(imp, () => this.fireEventIfNeeded(link));
+        } else {
           this.fireEventIfNeeded(link);
         }
-        return;
       }
-      this.inflight++;
-      // Mark it as pending to notify others this url is being loaded.
-      this.documents[url] = 'pending';
-      Xhr.load(url, (resource, redirectedUrl) => {
-        const doc = this.makeDocument(resource, redirectedUrl || url);
-        this.documents[url] = doc;
-        this.inflight--;
-        // Load subtree.
-        this.loadImports(doc);
-        this.processImportsIfLoadingDone();
-      }, () => {
-        // If load fails, handle error.
-        this.documents[url] = null;
-        this.inflight--;
-        this.processImportsIfLoadingDone();
-      });
+
     }
 
     /**
@@ -735,7 +736,7 @@
     document.addEventListener('load', onLoadingDone, true /* useCapture */ );
     document.addEventListener('error', onLoadingDone, true /* useCapture */ );
   } else {
-    new Importer();
+    whenDocumentReady(() => new Importer());
   }
 
   /**
