@@ -36,24 +36,19 @@
     function checkTemplate(template, base) {
       var i, doc = template.content;
 
-      var anchors = doc.querySelectorAll('a');
+      var anchors = doc.querySelectorAll('[href]');
       for (i = 0; i < anchors.length; i++) {
-        assert.isTrue(anchors[i].getAttribute('href').indexOf(base) === -1, 'anchor href not modified');
+        assert.isTrue(anchors[i].getAttribute('href').indexOf(base) !== -1, '[href] modified');
       }
 
-      var forms = doc.querySelectorAll('form');
+      var forms = doc.querySelectorAll('[action]');
       for (i = 0; i < forms.length; i++) {
-        assert.isTrue(forms[i].getAttribute('action').indexOf(base) === -1, 'form action not modified');
+        assert.isTrue(forms[i].getAttribute('action').indexOf(base) !== -1, '[action] modified');
       }
 
-      var scripts = doc.querySelectorAll('script');
+      var scripts = doc.querySelectorAll('[src]');
       for (i = 0; i < scripts.length; i++) {
-        assert.isTrue(scripts[i].getAttribute('src').indexOf(base) !== -1, 'script src modified');
-      }
-
-      var imgs = doc.querySelectorAll('img');
-      for (i = 0; i < imgs.length; i++) {
-        assert.isTrue(imgs[i].getAttribute('src').indexOf(base) !== -1, 'img src modified');
+        assert.isTrue(scripts[i].getAttribute('src').indexOf(base) !== -1, '[src] modified');
       }
 
       var styles = doc.querySelectorAll('style');
