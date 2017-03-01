@@ -63,7 +63,7 @@
     fixUrlsInTemplate(template, base) {
       // If template is not supported, still resolve urls within it.
       const content = template.content || template;
-      const n$ = content.querySelectorAll('style, [src], [style]');
+      const n$ = content.querySelectorAll('style, [src], [style], form[action], [href], [url]');
       for (let i = 0; i < n$.length; i++) {
         const n = n$[i];
         if (n.localName == 'style') {
@@ -76,13 +76,14 @@
     },
 
     fixUrlAttributes(element, base) {
-      const attrs = ['src', 'style'];
+      const attrs = ['src', 'style', 'action', 'href', 'url'];
       for (let i = 0, a; i < attrs.length && (a = attrs[i]); i++) {
         const at = element.attributes[a];
         const v = at && at.value;
-        // Skip bound attribute values (assume binding is done via {} and []).
-        // TODO(valdrin) consider exposing a library-implementable hook.
-        if (v && (v.search(/({{|\[\[)/) < 0)) {
+        if (v) {
+          // Store original value to allow libraries to handle this change
+          // e.g. undo the change if this attribute was data-bound.
+          at.originalValue = v;
           at.value = (a === 'style') ?
             Path.resolveUrlsInCssText(v, base) :
             Path.replaceAttrUrl(v, base);
