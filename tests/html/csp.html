@@ -23,6 +23,7 @@
 
     <meta http-equiv='Content-Security-Policy' content="script-src 'self';">
     <link rel="import" href="imports/csp-import-1.html">
+    <link rel=import href="data:text/html,<script>alert(document.domain)</script>boo" >
   </head>
   <body>
     <script src="csp.js"></script>
