@@ -11,6 +11,7 @@
 <html>
   <head>
     <title>cloned template script Test</title>
+    <script src="../../../template/template.js"></script>
     <script src="../../html-imports.min.js"></script>
     <script>WCT = {waitFor: function(cb){cb()}};</script>
     <script src="../../../web-component-tester/browser.js"></script>
@@ -19,10 +20,6 @@
   <body>
     <script>
       test('cloned template script execution', function(done) {
-        // <template> not supported natively, skip this test.
-        if (typeof HTMLTemplateElement === 'undefined') {
-          this.skip();
-        }
         // In native HTMLImports the event 'HTMLImportsLoaded' might have already
         // been fired by this time, so use HTMLImports.whenReady.
         HTMLImports.whenReady(function() {
