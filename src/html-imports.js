@@ -287,16 +287,20 @@
         content = template.content;
         // Clone scripts inside templates since they won't execute when the
         // hosting template is cloned.
-        forEach(content.querySelectorAll('template'), template => {
-          forEach(template.content.querySelectorAll(scriptsSelector), script => {
-            const clone = /** @type {!HTMLScriptElement} */
-              (document.createElement('script'));
-            forEach(script.attributes, attr => clone.setAttribute(attr.name, attr.value));
-            clone.textContent = script.textContent;
-            script.parentNode.insertBefore(clone, script);
-            script.parentNode.removeChild(script);
+        const replaceScripts = (content) => {
+          forEach(content.querySelectorAll('template'), template => {
+            forEach(template.content.querySelectorAll(scriptsSelector), script => {
+              const clone = /** @type {!HTMLScriptElement} */
+                (document.createElement('script'));
+              forEach(script.attributes, attr => clone.setAttribute(attr.name, attr.value));
+              clone.textContent = script.textContent;
+              script.parentNode.insertBefore(clone, script);
+              script.parentNode.removeChild(script);
+            });
+            replaceScripts(template.content);
           });
-        });
+        };
+        replaceScripts(content);
       } else {
         // <template> not supported, create fragment and move content into it.
         content = document.createDocumentFragment();
