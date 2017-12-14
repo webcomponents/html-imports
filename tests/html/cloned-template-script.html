@@ -40,29 +40,29 @@
         });
 
         test('import does not execute scripts in templates', function() {
-          chai.assert.isUndefined(window.executedTemplateScript, 'remote template script is NOT executed after import');
-          chai.assert.isUndefined(window.executedNestedTemplateScript, 'remote nested template script is NOT executed after import');
+          assert.isUndefined(window.executedTemplateScript, 'remote template script is NOT executed after import');
+          assert.isUndefined(window.executedNestedTemplateScript, 'remote nested template script is NOT executed after import');
         });
 
         test('executes scripts when template is cloned and attached', function() {
           container.appendChild(document.importNode(template.content, true));
-          chai.assert.equal(window.executedTemplateScript, 1, 'remote template script executed once after clone and attach to the main document');
-          chai.assert.isUndefined(window.executedNestedTemplateScript, 'remote nested template script is NOT executed after import');
+          assert.equal(window.executedTemplateScript, 1, 'remote template script executed once after clone and attach to the main document');
+          assert.isUndefined(window.executedNestedTemplateScript, 'remote nested template script is NOT executed after import');
         });
 
         test('executes scripts when nested template of cloned template is cloned and attached', function() {
           container.appendChild(document.importNode(template.content, true));
           var nestedTemplate = container.querySelector('template');
           container.appendChild(document.importNode(nestedTemplate.content, true));
-          chai.assert.equal(window.executedNestedTemplateScript, 1, 'remote nested template script executed after clone and attach to the main document');
+          assert.equal(window.executedNestedTemplateScript, 1, 'remote nested template script executed after clone and attach to the main document');
         });
 
         test('executes scripts of each clone', function() {
           container.appendChild(document.importNode(template.content, true));
-          chai.assert.equal(window.executedTemplateScript, 1, 'remote template script executed after clone and attach to the main document');
+          assert.equal(window.executedTemplateScript, 1, 'remote template script executed after clone and attach to the main document');
           container.appendChild(document.importNode(template.content, true));
-          chai.assert.equal(window.executedTemplateScript, 2, 'remote template script executed after 2nd clone and attach to the main document');
-          chai.assert.isUndefined(window.executedNestedTemplateScript, 'remote nested template script is NOT executed after parent is clone and attach to the main document');
+          assert.equal(window.executedTemplateScript, 2, 'remote template script executed after 2nd clone and attach to the main document');
+          assert.isUndefined(window.executedNestedTemplateScript, 'remote nested template script is NOT executed after parent is clone and attach to the main document');
         });
 
         // NOTE: these tests MUST be kept last, since once the `template.content` is attached,
@@ -70,13 +70,13 @@
         test('executes scripts when nested template is cloned and attached', function() {
           var nestedTemplate = template.content.querySelector('template');
           container.appendChild(document.importNode(nestedTemplate.content, true));
-          chai.assert.equal(window.executedNestedTemplateScript, 1, 'remote nested template script executed after clone and attach to the main document');
+          assert.equal(window.executedNestedTemplateScript, 1, 'remote nested template script executed after clone and attach to the main document');
         });
 
         test('executes scripts when template is attached', function() {
           container.appendChild(template.content);
-          chai.assert.equal(window.executedTemplateScript, 1, 'remote template script executed once after clone and attach to the main document');
-          chai.assert.isUndefined(window.executedNestedTemplateScript, 'remote nested template script is NOT executed after import');
+          assert.equal(window.executedTemplateScript, 1, 'remote template script executed once after clone and attach to the main document');
+          assert.isUndefined(window.executedNestedTemplateScript, 'remote nested template script is NOT executed after import');
         });
 
       });
