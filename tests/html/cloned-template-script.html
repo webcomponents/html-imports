@@ -65,18 +65,10 @@
           assert.isUndefined(window.executedNestedTemplateScript, 'remote nested template script is NOT executed after parent is clone and attach to the main document');
         });
 
-        // NOTE: these tests MUST be kept last, since once the `template.content` is attached,
-        // it will be an empty DocumentFragment in the next tests.
         test('executes scripts when nested template is cloned and attached', function() {
           var nestedTemplate = template.content.querySelector('template');
           container.appendChild(document.importNode(nestedTemplate.content, true));
           assert.equal(window.executedNestedTemplateScript, 1, 'remote nested template script executed after clone and attach to the main document');
-        });
-
-        test('executes scripts when template is attached', function() {
-          container.appendChild(template.content);
-          assert.equal(window.executedTemplateScript, 1, 'remote template script executed once after clone and attach to the main document');
-          assert.isUndefined(window.executedNestedTemplateScript, 'remote nested template script is NOT executed after import');
         });
 
       });
