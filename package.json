@@ -29,6 +29,7 @@
   },
   "homepage": "https://webcomponents.org/polyfills",
   "devDependencies": {
+    "bower": "^1.8.8",
     "google-closure-compiler": "^20190215.0.1",
     "gulp": "^4.0.0",
     "gulp-sourcemaps": "^2.6.5",
