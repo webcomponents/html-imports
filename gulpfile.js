@@ -23,7 +23,7 @@ const closureOptions = {
   assume_function_wrapper: true,
   new_type_inf: true,
   rewrite_polyfills: false,
-  dependency_mode: 'STRICT',
+  dependency_mode: 'PRUNE',
   entry_point: 'src/html-imports.js',
 };
 
