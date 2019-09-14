@@ -25,6 +25,7 @@
   },
   "scripts": {
     "build": "gulp",
+    "install": "bower install --save-dev web-component-tester",
     "test": "wct"
   },
   "homepage": "https://webcomponents.org/polyfills",
