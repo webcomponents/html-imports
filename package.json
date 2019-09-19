@@ -25,10 +25,12 @@
   },
   "scripts": {
     "build": "gulp",
+    "install": "bower install --save-dev web-component-tester",
     "test": "wct"
   },
   "homepage": "https://webcomponents.org/polyfills",
   "devDependencies": {
+    "bower": "^1.8.8",
     "google-closure-compiler": "^20171112.0.0",
     "gulp": "^3.8.8",
     "gulp-sourcemaps": "^2.4.1",
