@@ -26,6 +26,6 @@
   ],
   "devDependencies": {
     "template": "webcomponents/template#^1.2.1",
-    "web-component-tester": "^6.4.1"
+    "web-component-tester": "^6.5.0"
   }
 }
