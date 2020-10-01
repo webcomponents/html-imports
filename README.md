@@ -1,4 +1,4 @@
-# HTMLImports
+# HTML Imports
 
 ## This platform feature, and polyfill, is deprecated, please consider using ES Modules instead.
 
